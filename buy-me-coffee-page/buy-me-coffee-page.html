@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy Me a Coffee</title>
+    <style>
+        :root {
+            --primary: #ffdd00;
+            --secondary: #0066ff;
+            --dark: #333333;
+            --light: #f5f5f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .logo-icon {
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+        
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .coffee-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+        }
+        
+        .coffee-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            width: 220px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .coffee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .coffee-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .coffee-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .coffee-card p {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+        
+        .select-btn {
+            background-color: var(--primary);
+            color: var(--dark);
+            border: none;
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .select-btn:hover {
+            background-color: #ffcc00;
+        }
+        
+        .custom-amount {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .custom-amount h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .amount-input {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .amount-input span {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .amount-input input {
+            width: 100px;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        
+        .support-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .support-btn:hover {
+            background-color: #0055cc;
+        }
+        
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .payment-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .payment-modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .payment-form {
+            margin-top: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .pay-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .pay-btn:hover {
+            background-color: #0055cc;
+        }
+        
+        .thank-you {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .thank-you h2 {
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+        
+        .thank-you p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 600px) {
+            .coffee-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .coffee-card {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="logo-icon">☕</span>
+            <span>BuyMeACoffee</span>
+        </div>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <h1>Support My Work</h1>
+            <p>If you enjoy my projects and want to support me, consider buying me a coffee!</p>
+            <img src="/api/placeholder/200/200" alt="Profile Picture" style="border-radius: 50%; margin-bottom: 1rem;">
+            <p>Hi, I'm [Your Name] - a junior web developer passionate about creating beautiful web experiences.</p>
+        </section>
+        
+        <section class="coffee-options">
+            <div class="coffee-card" data-amount="3">
+                <div class="coffee-icon">☕</div>
+                <h3>Small Coffee</h3>
+                <p>$3</p>
+                <button class="select-btn">Select</button>
+            </div>
+            
+            <div class="coffee-card" data-amount="5">
+                <div class="coffee-icon">☕☕</div>
+                <h3>Regular Coffee</h3>
+                <p>$5</p>
+                <button class="select-btn">Select</button>
+            </div>
+            
+            <div class="coffee-card" data-amount="10">
+                <div class="coffee-icon">☕☕☕</div>
+                <h3>Large Coffee</h3>
+                <p>$10</p>
+                <button class="select-btn">Select</button>
+            </div>
+        </section>
+        
+        <section class="custom-amount">
+            <h3>Or enter a custom amount</h3>
+            <div class="amount-input">
+                <span>$</span>
+                <input type="number" id="custom-amount" min="1" value="15">
+            </div>
+            <button class="support-btn">Support Me</button>
+        </section>
+    </main>
+    
+    <div class="payment-modal" id="payment-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-modal">&times;</button>
+            <h2>Complete Your Support</h2>
+            <p id="payment-amount">You're buying me a coffee for $5</p>
+            
+            <div class="payment-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" placeholder="Your Name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="your@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="card">Card Number</label>
+                    <input type="text" id="card" placeholder="1234 5678 9012 3456">
+                </div>
+                
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="expiry">Expiry Date</label>
+                        <input type="text" id="expiry" placeholder="MM/YY">
+                    </div>
+                    
+                    <div class="form-group" style="flex: 1;">
+                        <label for="cvc">CVC</label>
+                        <input type="text" id="cvc" placeholder="123">
+                    </div>
+                </div>
+                
+                <button class="pay-btn" id="pay-btn">Pay Now</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="thank-you" id="thank-you">
+        <h2>Thank You for Your Support!</h2>
+        <p>Your contribution means a lot to me and helps me continue creating awesome content.</p>
+        <button class="support-btn" id="back-btn">Back to Home</button>
+    </div>
+    
+    <script>
+        // Select elements
+        const coffeeCards = document.querySelectorAll('.coffee-card');
+        const supportBtn = document.querySelector('.support-btn');
+        const customAmountInput = document.getElementById('custom-amount');
+        const paymentModal = document.getElementById('payment-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const paymentAmountText = document.getElementById('payment-amount');
+        const payBtn = document.getElementById('pay-btn');
+        const thankYouSection = document.getElementById('thank-you');
+        const backBtn = document.getElementById('back-btn');
+        
+        // Current selected amount
+        let selectedAmount = parseFloat(customAmountInput.value);
+        
+        // Add event listeners to coffee cards
+        coffeeCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove selected class from all cards
+                coffeeCards.forEach(c => c.style.border = 'none');
+                
+                // Add selected class to clicked card
+                card.style.border = '3px solid var(--primary)';
+                
+                // Update selected amount
+                selectedAmount = parseFloat(card.dataset.amount);
+                
+                // Reset custom amount input
+                customAmountInput.value = selectedAmount;
+            });
+        });
+        
+        // Custom amount input event
+        customAmountInput.addEventListener('input', () => {
+            // Remove selected class from all cards
+            coffeeCards.forEach(card => card.style.border = 'none');
+            
+            // Update selected amount
+            selectedAmount = parseFloat(customAmountInput.value) || 0;
+        });
+        
+        // Support button click event
+        supportBtn.addEventListener('click', () => {
+            if (selectedAmount > 0) {
+                // Update payment amount text
+                paymentAmountText.textContent = `You're buying me a coffee for $${selectedAmount.toFixed(2)}`;
+                
+                // Show payment modal
+                paymentModal.classList.add('active');
+            } else {
+                alert('Please enter a valid amount');
+            }
+        });
+        
+        // Close modal button click event
+        closeModalBtn.addEventListener('click', () => {
+            paymentModal.classList.remove('active');
+        });
+        
+        // Close modal when clicking outside
+        paymentModal.addEventListener('click', (e) => {
+            if (e.target === paymentModal) {
+                paymentModal.classList.remove('active');
+            }
+        });
+        
+        // Pay button click event
+        payBtn.addEventListener('click', () => {
+            // Simple form validation
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const card = document.getElementById('card').value;
+            const expiry = document.getElementById('expiry').value;
+            const cvc = document.getElementById('cvc').value;
+            
+            if (name && email && card && expiry && cvc) {
+                // Hide payment modal
+                paymentModal.classList.remove('active');
+                
+                // Show thank you section
+                document.querySelector('main').style.display = 'none';
+                thankYouSection.style.display = 'block';
+                
+                // In a real application, you would process the payment here
+                console.log('Payment processed:', {
+                    amount: selectedAmount,
+                    name,
+                    email,
+                    card: 'XXXX-XXXX-XXXX-' + card.slice(-4)
+                });
+            } else {
+                alert('Please fill out all fields');
+            }
+        });
+        
+        // Back button click event
+        backBtn.addEventListener('click', () => {
+            // Hide thank you section
+            thankYouSection.style.display = 'none';
+            
+            // Show main content
+            document.querySelector('main').style.display = 'block';
+            
+            // Reset form
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('card').value = '';
+            document.getElementById('expiry').value = '';
+            document.getElementById('cvc').value = '';
+        });
+    </script>
+</body>
+</html>

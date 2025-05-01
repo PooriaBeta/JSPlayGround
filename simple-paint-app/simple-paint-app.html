@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Paint App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    #canvas {
+      background-color: white;
+      border: 1px solid #ccc;
+      cursor: crosshair;
+      display: block;
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    button {
+      padding: 8px 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    button.active {
+      background-color: #2E7D32;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+    #color-picker {
+      width: 40px;
+      height: 38px;
+      padding: 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .size-control {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Simple Paint App</h1>
+    
+    <div class="controls">
+      <button id="pencil-btn">Pencil</button>
+      <button id="rectangle-btn">Rectangle</button>
+      <button id="circle-btn">Circle</button>
+      <input type="color" id="color-picker" value="#000000">
+      <div class="size-control">
+        <label for="size-slider">Size:</label>
+        <input type="range" id="size-slider" min="1" max="50" value="5">
+      </div>
+      <button id="clear-btn">Clear</button>
+    </div>
+    
+    <canvas id="canvas" width="800" height="500"></canvas>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      const pencilBtn = document.getElementById('pencil-btn');
+      const rectangleBtn = document.getElementById('rectangle-btn');
+      const circleBtn = document.getElementById('circle-btn');
+      const colorPicker = document.getElementById('color-picker');
+      const sizeSlider = document.getElementById('size-slider');
+      const clearBtn = document.getElementById('clear-btn');
+      
+      let currentTool = 'pencil';
+      let isDrawing = false;
+      let startX, startY;
+      
+      // Set initial state
+      pencilBtn.classList.add('active');
+      
+      // Tool selection
+      pencilBtn.addEventListener('click', () => {
+        setActiveTool('pencil');
+      });
+      
+      rectangleBtn.addEventListener('click', () => {
+        setActiveTool('rectangle');
+      });
+      
+      circleBtn.addEventListener('click', () => {
+        setActiveTool('circle');
+      });
+      
+      function setActiveTool(tool) {
+        currentTool = tool;
+        // Remove active class from all buttons
+        pencilBtn.classList.remove('active');
+        rectangleBtn.classList.remove('active');
+        circleBtn.classList.remove('active');
+        
+        // Add active class to selected tool
+        if (tool === 'pencil') {
+          pencilBtn.classList.add('active');
+        } else if (tool === 'rectangle') {
+          rectangleBtn.classList.add('active');
+        } else if (tool === 'circle') {
+          circleBtn.classList.add('active');
+        }
+      }
+      
+      // Drawing functionality
+      canvas.addEventListener('mousedown', startDrawing);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('mouseout', stopDrawing);
+      
+      function startDrawing(e) {
+        isDrawing = true;
+        
+        // Get mouse position relative to canvas
+        const rect = canvas.getBoundingClientRect();
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+        
+        if (currentTool === 'pencil') {
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+        }
+      }
+      
+      function draw(e) {
+        if (!isDrawing) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const currentX = e.clientX - rect.left;
+        const currentY = e.clientY - rect.top;
+        
+        ctx.lineWidth = sizeSlider.value;
+        ctx.strokeStyle = colorPicker.value;
+        ctx.fillStyle = colorPicker.value;
+        
+        if (currentTool === 'pencil') {
+          ctx.lineTo(currentX, currentY);
+          ctx.stroke();
+        } else if (currentTool === 'rectangle' || currentTool === 'circle') {
+          // Clear canvas and redraw everything to show live preview
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.putImageData(imageData, 0, 0);
+          
+          if (currentTool === 'rectangle') {
+            const width = currentX - startX;
+            const height = currentY - startY;
+            ctx.strokeRect(startX, startY, width, height);
+          } else if (currentTool === 'circle') {
+            const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+            ctx.beginPath();
+            ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+          }
+        }
+      }
+      
+      function stopDrawing() {
+        isDrawing = false;
+      }
+      
+      // Clear canvas
+      clearBtn.addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      });
+    });
+  </script>
+</body>
+</html>

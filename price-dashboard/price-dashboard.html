@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Monitor Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f7;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        input, button, select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .product-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .product-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #e44d26;
+        }
+        .product-source {
+            margin-top: 6px;
+            color: #666;
+            font-size: 12px;
+        }
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+        }
+        .remove-btn:hover {
+            color: #e44d26;
+        }
+        .price-history {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        .previous-price {
+            text-decoration: line-through;
+            margin-right: 5px;
+        }
+        .price-change {
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        .price-decrease {
+            color: green;
+        }
+        .price-increase {
+            color: red;
+        }
+        .last-updated {
+            margin-top: 5px;
+            font-size: 11px;
+            color: #999;
+        }
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .filter-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Price Monitor Dashboard</h1>
+        
+        <div class="filter-section">
+            <div class="controls">
+                <input type="text" id="productUrl" placeholder="Product URL" style="flex-grow: 1;">
+                <button id="addProduct">Add Product</button>
+                <select id="sortOrder">
+                    <option value="default">Sort by: Default</option>
+                    <option value="priceAsc">Price: Low to High</option>
+                    <option value="priceDesc">Price: High to Low</option>
+                    <option value="name">Name</option>
+                </select>
+                <input type="text" id="searchFilter" placeholder="Search products...">
+            </div>
+            
+            <div class="controls">
+                <button id="loadDemo">Load Demo Data</button>
+                <button id="clearAll">Clear All</button>
+                <button id="exportData">Export Data</button>
+                <button id="importData">Import Data</button>
+                <input type="file" id="importFile" style="display: none;">
+            </div>
+        </div>
+        
+        <div class="dashboard" id="productsDashboard">
+            <div class="empty-state">
+                No products added yet. Add products using the form above or load demo data.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store products in localStorage
+        let products = JSON.parse(localStorage.getItem('priceMonitorProducts')) || [];
+        
+        // DOM elements
+        const productsDashboard = document.getElementById('productsDashboard');
+        const productUrlInput = document.getElementById('productUrl');
+        const addProductBtn = document.getElementById('addProduct');
+        const loadDemoBtn = document.getElementById('loadDemo');
+        const clearAllBtn = document.getElementById('clearAll');
+        const exportDataBtn = document.getElementById('exportData');
+        const importDataBtn = document.getElementById('importData');
+        const importFileInput = document.getElementById('importFile');
+        const sortOrderSelect = document.getElementById('sortOrder');
+        const searchFilterInput = document.getElementById('searchFilter');
+        
+        // Demo data
+        const demoProducts = [
+            { 
+                id: 1, 
+                title: 'Wireless Earbuds', 
+                price: 79.99, 
+                previousPrice: 99.99, 
+                source: 'Amazon', 
+                url: 'https://amazon.com/product/1',
+                lastUpdated: new Date().toISOString(),
+                priceHistory: [
+                    { price: 99.99, date: '2025-04-01T00:00:00Z' },
+                    { price: 89.99, date: '2025-04-10T00:00:00Z' },
+                    { price: 79.99, date: '2025-04-20T00:00:00Z' }
+                ]
+            },
+            { 
+                id: 2, 
+                title: 'Smartphone 128GB', 
+                price: 699.00, 
+                previousPrice: 749.00, 
+                source: 'BestBuy', 
+                url: 'https://bestbuy.com/product/2',
+                lastUpdated: new Date().toISOString(),
+                priceHistory: [
+                    { price: 799.00, date: '2025-03-15T00:00:00Z' },
+                    { price: 749.00, date: '2025-03-30T00:00:00Z' },
+                    { price: 699.00, date: '2025-04-15T00:00:00Z' }
+                ]
+            },
+            { 
+                id: 3, 
+                title: 'Smart Watch Series 7', 
+                price: 349.99, 
+                previousPrice: 329.99, 
+                source: 'Apple', 
+                url: 'https://apple.com/product/3',
+                lastUpdated: new Date().toISOString(),
+                priceHistory: [
+                    { price: 329.99, date: '2025-04-05T00:00:00Z' },
+                    { price: 349.99, date: '2025-04-18T00:00:00Z' }
+                ]
+            },
+            { 
+                id: 4, 
+                title: 'Gaming Laptop 16GB RAM', 
+                price: 1299.00, 
+                previousPrice: 1499.00, 
+                source: 'Newegg', 
+                url: 'https://newegg.com/product/4',
+                lastUpdated: new Date().toISOString(),
+                priceHistory: [
+                    { price: 1599.00, date: '2025-02-10T00:00:00Z' },
+                    { price: 1499.00, date: '2025-03-20T00:00:00Z' },
+                    { price: 1299.00, date: '2025-04-10T00:00:00Z' }
+                ]
+            }
+        ];
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', renderDashboard);
+        addProductBtn.addEventListener('click', addProduct);
+        loadDemoBtn.addEventListener('click', loadDemoData);
+        clearAllBtn.addEventListener('click', clearAllProducts);
+        exportDataBtn.addEventListener('click', exportData);
+        importDataBtn.addEventListener('click', () => importFileInput.click());
+        importFileInput.addEventListener('change', importData);
+        sortOrderSelect.addEventListener('change', renderDashboard);
+        searchFilterInput.addEventListener('input', renderDashboard);
+        
+        // Functions
+        function addProduct() {
+            const url = productUrlInput.value.trim();
+            if (!url) return;
+            
+            // In a real app, you would fetch product data from the URL
+            // For demo purposes, we'll create a mock product
+            const newProduct = {
+                id: Date.now(),
+                title: `Product from ${new URL(url).hostname}`,
+                price: (Math.random() * 1000).toFixed(2) * 1,
+                previousPrice: (Math.random() * 1000).toFixed(2) * 1,
+                source: new URL(url).hostname.replace('www.', ''),
+                url: url,
+                lastUpdated: new Date().toISOString(),
+                priceHistory: []
+            };
+            
+            products.push(newProduct);
+            saveProducts();
+            renderDashboard();
+            productUrlInput.value = '';
+        }
+        
+        function loadDemoData() {
+            products = [...demoProducts];
+            saveProducts();
+            renderDashboard();
+        }
+        
+        function clearAllProducts() {
+            if (confirm('Are you sure you want to clear all products?')) {
+                products = [];
+                saveProducts();
+                renderDashboard();
+            }
+        }
+        
+        function saveProducts() {
+            localStorage.setItem('priceMonitorProducts', JSON.stringify(products));
+        }
+        
+        function renderDashboard() {
+            // Filter products by search term
+            const searchTerm = searchFilterInput.value.toLowerCase();
+            let filteredProducts = products.filter(product => 
+                product.title.toLowerCase().includes(searchTerm) || 
+                product.source.toLowerCase().includes(searchTerm)
+            );
+            
+            // Sort products
+            const sortOrder = sortOrderSelect.value;
+            if (sortOrder === 'priceAsc') {
+                filteredProducts.sort((a, b) => a.price - b.price);
+            } else if (sortOrder === 'priceDesc') {
+                filteredProducts.sort((a, b) => b.price - a.price);
+            } else if (sortOrder === 'name') {
+                filteredProducts.sort((a, b) => a.title.localeCompare(b.title));
+            }
+            
+            // Clear dashboard
+            productsDashboard.innerHTML = '';
+            
+            // Display empty state if no products
+            if (filteredProducts.length === 0) {
+                productsDashboard.innerHTML = `
+                    <div class="empty-state">
+                        No products found. Add products using the form above or load demo data.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Render products
+            filteredProducts.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                
+                // Calculate price change
+                const priceChange = product.price - product.previousPrice;
+                const priceChangePercent = ((priceChange / product.previousPrice) * 100).toFixed(1);
+                const priceChangeClass = priceChange < 0 ? 'price-decrease' : priceChange > 0 ? 'price-increase' : '';
+                const priceChangeSymbol = priceChange < 0 ? '▼' : priceChange > 0 ? '▲' : '';
+                
+                // Format last updated date
+                const lastUpdated = new Date(product.lastUpdated);
+                const formattedDate = lastUpdated.toLocaleDateString();
+                
+                card.innerHTML = `
+                    <div class="product-title">${product.title}</div>
+                    <div class="product-price">$${product.price.toFixed(2)}
+                        <span class="price-change ${priceChangeClass}">
+                            ${priceChangeSymbol} ${Math.abs(priceChangePercent)}%
+                        </span>
+                    </div>
+                    <div class="price-history">
+                        <span class="previous-price">$${product.previousPrice.toFixed(2)}</span>
+                    </div>
+                    <div class="product-source">Source: ${product.source}</div>
+                    <div class="last-updated">Last updated: ${formattedDate}</div>
+                    <button class="remove-btn" data-id="${product.id}">✕</button>
+                `;
+                
+                productsDashboard.appendChild(card);
+            });
+            
+            // Add event listeners for remove buttons
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    removeProduct(id);
+                });
+            });
+        }
+        
+        function removeProduct(id) {
+            products = products.filter(product => product.id !== id);
+            saveProducts();
+            renderDashboard();
+        }
+        
+        function exportData() {
+            const dataStr = JSON.stringify(products, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'price-monitor-data.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+        
+        function importData(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedProducts = JSON.parse(e.target.result);
+                    if (Array.isArray(importedProducts)) {
+                        products = importedProducts;
+                        saveProducts();
+                        renderDashboard();
+                        alert('Data imported successfully!');
+                    } else {
+                        alert('Invalid data format. Please use a valid JSON file.');
+                    }
+                } catch (error) {
+                    alert('Error importing data: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            // Reset the file input
+            e.target.value = '';
+        }
+    </script>
+</body>
+</html>

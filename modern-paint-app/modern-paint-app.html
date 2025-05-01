@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Modern Paint App</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --bg-color: #f9fafb;
+      --panel-bg: #ffffff;
+      --text-color: #1f2937;
+      --border-color: #e5e7eb;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+    }
+    
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .app-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      font-weight: 600;
+      margin: 0;
+      color: var(--primary);
+      font-size: 2rem;
+    }
+    
+    .paint-area {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      background-color: var(--panel-bg);
+      padding: 16px;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      align-items: center;
+    }
+    
+    .tool-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-right: 16px;
+      border-right: 1px solid var(--border-color);
+    }
+    
+    .tool-group:last-child {
+      border-right: none;
+    }
+    
+    .tool-btn {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+    }
+    
+    .tool-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--text-color);
+    }
+    
+    .tool-btn:hover {
+      background-color: rgba(99, 102, 241, 0.1);
+    }
+    
+    .tool-btn.active {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+    
+    .tool-btn.active svg {
+      fill: white;
+    }
+    
+    .color-tool {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    
+    #color-picker {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    
+    .size-tool {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    #size-slider {
+      width: 100px;
+      accent-color: var(--primary);
+    }
+    
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    
+    #canvas {
+      width: 100%;
+      height: 100%;
+      background-color: white;
+      cursor: crosshair;
+    }
+    
+    .action-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .action-btn:hover {
+      background-color: var(--primary-hover);
+    }
+    
+    .action-btn.outline {
+      background-color: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .action-btn.outline:hover {
+      background-color: rgba(99, 102, 241, 0.1);
+    }
+    
+    .action-btn.danger {
+      background-color: #ef4444;
+    }
+    
+    .action-btn.danger:hover {
+      background-color: #dc2626;
+    }
+    
+    @media (max-width: 768px) {
+      .tool-group {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="app-header">
+      <h1>Modern Paint App</h1>
+    </div>
+    
+    <div class="paint-area">
+      <div class="toolbar">
+        <div class="tool-group">
+          <button id="pencil-btn" class="tool-btn active" title="Pencil">
+            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          </button>
+          <button id="eraser-btn" class="tool-btn" title="Eraser">
+            <svg viewBox="0 0 24 24"><path d="M15.14 3c-.51 0-1.02.2-1.41.59L2.59 14.73c-.78.77-.78 2.03 0 2.8L5.03 20h7.66l8.72-8.72c.79-.78.79-2.03 0-2.82l-4.84-4.86c-.4-.39-.91-.59-1.43-.59zm-3.56 15h-5.97l-1.88-1.87 7.74-7.74 4.22 4.22-4.11 4.11V18h.24z"/></svg>
+          </button>
+        </div>
+        
+        <div class="tool-group">
+          <button id="rectangle-btn" class="tool-btn" title="Rectangle">
+            <svg viewBox="0 0 24 24"><path d="M2 4h20v16H2z"/></svg>
+          </button>
+          <button id="circle-btn" class="tool-btn" title="Circle">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+          </button>
+          <button id="triangle-btn" class="tool-btn" title="Triangle">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20z"/></svg>
+          </button>
+          <button id="line-btn" class="tool-btn" title="Line">
+            <svg viewBox="0 0 24 24"><path d="M3 21l18-18"/></svg>
+          </button>
+          <button id="ellipse-btn" class="tool-btn" title="Ellipse">
+            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg>
+          </button>
+          <button id="star-btn" class="tool-btn" title="Star">
+            <svg viewBox="0 0 24 24"><path d="M12 2l2.2 6.6h7.1l-5.7 4.2 2.2 6.6-5.8-4.2-5.8 4.2 2.2-6.6-5.7-4.2h7.1z"/></svg>
+          </button>
+        </div>
+        
+        <div class="tool-group">
+          <div class="color-tool">
+            <input type="color" id="color-picker" value="#6366f1">
+          </div>
+          <div class="size-tool">
+            <label for="size-slider">Size:</label>
+            <input type="range" id="size-slider" min="1" max="50" value="5">
+          </div>
+        </div>
+        
+        <div class="tool-group">
+          <button id="fill-btn" class="tool-btn" title="Fill Shape">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+          </button>
+          <button id="stroke-btn" class="tool-btn active" title="Stroke Shape">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>
+          </button>
+        </div>
+        
+        <div class="tool-group">
+          <button id="clear-btn" class="action-btn danger" title="Clear Canvas">Clear</button>
+          <button id="save-btn" class="action-btn" title="Save Image">Save</button>
+        </div>
+      </div>
+      
+      <div class="canvas-container">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Canvas setup
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Resize canvas to container
+      function resizeCanvas() {
+        const container = canvas.parentElement;
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+      }
+      
+      // Initial resize
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
+      // Tool buttons
+      const pencilBtn = document.getElementById('pencil-btn');
+      const eraserBtn = document.getElementById('eraser-btn');
+      const rectangleBtn = document.getElementById('rectangle-btn');
+      const circleBtn = document.getElementById('circle-btn');
+      const triangleBtn = document.getElementById('triangle-btn');
+      const lineBtn = document.getElementById('line-btn');
+      const ellipseBtn = document.getElementById('ellipse-btn');
+      const starBtn = document.getElementById('star-btn');
+      const fillBtn = document.getElementById('fill-btn');
+      const strokeBtn = document.getElementById('stroke-btn');
+      const clearBtn = document.getElementById('clear-btn');
+      const saveBtn = document.getElementById('save-btn');
+      
+      // Inputs
+      const colorPicker = document.getElementById('color-picker');
+      const sizeSlider = document.getElementById('size-slider');
+      
+      // Drawing state
+      let currentTool = 'pencil';
+      let isDrawing = false;
+      let startX, startY;
+      let lastX, lastY;
+      let savedImageData;
+      let fillShape = false;
+      
+      // Set initial state
+      setActiveTool('pencil');
+      
+      // Tool selection
+      pencilBtn.addEventListener('click', () => setActiveTool('pencil'));
+      eraserBtn.addEventListener('click', () => setActiveTool('eraser'));
+      rectangleBtn.addEventListener('click', () => setActiveTool('rectangle'));
+      circleBtn.addEventListener('click', () => setActiveTool('circle'));
+      triangleBtn.addEventListener('click', () => setActiveTool('triangle'));
+      lineBtn.addEventListener('click', () => setActiveTool('line'));
+      ellipseBtn.addEventListener('click', () => setActiveTool('ellipse'));
+      starBtn.addEventListener('click', () => setActiveTool('star'));
+      
+      // Fill/Stroke selection
+      fillBtn.addEventListener('click', () => {
+        fillShape = true;
+        fillBtn.classList.add('active');
+        strokeBtn.classList.remove('active');
+      });
+      
+      strokeBtn.addEventListener('click', () => {
+        fillShape = false;
+        strokeBtn.classList.add('active');
+        fillBtn.classList.remove('active');
+      });
+      
+      function setActiveTool(tool) {
+        currentTool = tool;
+        
+        // Remove active class from all tool buttons
+        const toolBtns = document.querySelectorAll('.tool-btn');
+        toolBtns.forEach(btn => {
+          if (btn !== fillBtn && btn !== strokeBtn) {
+            btn.classList.remove('active');
+          }
+        });
+        
+        // Add active class to selected tool
+        if (tool === 'pencil') {
+          pencilBtn.classList.add('active');
+        } else if (tool === 'eraser') {
+          eraserBtn.classList.add('active');
+        } else if (tool === 'rectangle') {
+          rectangleBtn.classList.add('active');
+        } else if (tool === 'circle') {
+          circleBtn.classList.add('active');
+        } else if (tool === 'triangle') {
+          triangleBtn.classList.add('active');
+        } else if (tool === 'line') {
+          lineBtn.classList.add('active');
+        } else if (tool === 'ellipse') {
+          ellipseBtn.classList.add('active');
+        } else if (tool === 'star') {
+          starBtn.classList.add('active');
+        }
+      }
+      
+      // Drawing functionality
+      canvas.addEventListener('mousedown', startDrawing);
+      canvas.addEventListener('touchstart', handleTouchStart);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('touchmove', handleTouchMove);
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('touchend', stopDrawing);
+      canvas.addEventListener('mouseout', stopDrawing);
+      
+      function handleTouchStart(e) {
+        e.preventDefault();
+        if (e.touches.length === 1) {
+          const touch = e.touches[0];
+          const mouseEvent = new MouseEvent('mousedown', {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+          });
+          canvas.dispatchEvent(mouseEvent);
+        }
+      }
+      
+      function handleTouchMove(e) {
+        e.preventDefault();
+        if (e.touches.length === 1) {
+          const touch = e.touches[0];
+          const mouseEvent = new MouseEvent('mousemove', {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+          });
+          canvas.dispatchEvent(mouseEvent);
+        }
+      }
+      
+      function startDrawing(e) {
+        isDrawing = true;
+        
+        // Get mouse position relative to canvas
+        const rect = canvas.getBoundingClientRect();
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+        lastX = startX;
+        lastY = startY;
+        
+        if (currentTool === 'pencil' || currentTool === 'eraser') {
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+        } else {
+          // Save the current canvas state for shape drawing
+          savedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+      }
+      
+      function draw(e) {
+        if (!isDrawing) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const currentX = e.clientX - rect.left;
+        const currentY = e.clientY - rect.top;
+        
+        ctx.lineWidth = sizeSlider.value;
+        
+        if (currentTool === 'eraser') {
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineTo(currentX, currentY);
+          ctx.stroke();
+        } else if (currentTool === 'pencil') {
+          ctx.strokeStyle = colorPicker.value;
+          ctx.lineTo(currentX, currentY);
+          ctx.stroke();
+        } else {
+          // Restore the saved canvas state for shape preview
+          ctx.putImageData(savedImageData, 0, 0);
+          
+          ctx.strokeStyle = colorPicker.value;
+          ctx.fillStyle = colorPicker.value;
+          
+          if (currentTool === 'rectangle') {
+            drawRectangle(startX, startY, currentX - startX, currentY - startY);
+          } else if (currentTool === 'circle') {
+            const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+            drawCircle(startX, startY, radius);
+          } else if (currentTool === 'triangle') {
+            drawTriangle(startX, startY, currentX, currentY);
+          } else if (currentTool === 'line') {
+            drawLine(startX, startY, currentX, currentY);
+          } else if (currentTool === 'ellipse') {
+            const radiusX = Math.abs(currentX - startX);
+            const radiusY = Math.abs(currentY - startY);
+            drawEllipse(startX, startY, radiusX, radiusY);
+          } else if (currentTool === 'star') {
+            const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+            drawStar(startX, startY, 5, radius * 0.5, radius);
+          }
+        }
+        
+        lastX = currentX;
+        lastY = currentY;
+      }
+      
+      function stopDrawing() {
+        isDrawing = false;
+      }
+      
+      // Shape drawing functions
+      function drawRectangle(x, y, width, height) {
+        if (fillShape) {
+          ctx.fillRect(x, y, width, height);
+        } else {
+          ctx.strokeRect(x, y, width, height);
+        }
+      }
+      
+      function drawCircle(x, y, radius) {
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        if (fillShape) {
+          ctx.fill();
+        } else {
+          ctx.stroke();
+        }
+      }
+      
+      function drawTriangle(startX, startY, endX, endY) {
+        const height = Math.abs(endY - startY);
+        const width = Math.abs(endX - startX);
+        const direction = endX > startX ? 1 : -1;
+        
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(startX + width * direction, startY);
+        ctx.lineTo(startX + (width * direction / 2), endY);
+        ctx.closePath();
+        
+        if (fillShape) {
+          ctx.fill();
+        } else {
+          ctx.stroke();
+        }
+      }
+      
+      function drawLine(startX, startY, endX, endY) {
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+      }
+      
+      function drawEllipse(x, y, radiusX, radiusY) {
+        ctx.beginPath();
+        ctx.ellipse(x, y, radiusX, radiusY, 0, 0, Math.PI * 2);
+        if (fillShape) {
+          ctx.fill();
+        } else {
+          ctx.stroke();
+        }
+      }
+      
+      function drawStar(cx, cy, spikes, innerRadius, outerRadius) {
+        ctx.beginPath();
+        let rot = Math.PI / 2 * 3;
+        let x = cx;
+        let y = cy;
+        let step = Math.PI / spikes;
+        
+        for (let i = 0; i < spikes; i++) {
+          x = cx + Math.cos(rot) * outerRadius;
+          y = cy + Math.sin(rot) * outerRadius;
+          ctx.lineTo(x, y);
+          rot += step;
+          
+          x = cx + Math.cos(rot) * innerRadius;
+          y = cy + Math.sin(rot) * innerRadius;
+          ctx.lineTo(x, y);
+          rot += step;
+        }
+        
+        ctx.closePath();
+        if (fillShape) {
+          ctx.fill();
+        } else {
+          ctx.stroke();
+        }
+      }
+      
+      // Clear canvas
+      clearBtn.addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      });
+      
+      // Save drawing
+      saveBtn.addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.download = 'my-drawing.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    });
+  </script>
+</body>
+</html>
