@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Typing Speed Test ✨</h1>
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="wpm">0</div>
+                <div class="stat-label">WPM</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="accuracy">100%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="time">0s</div>
+                <div class="stat-label">Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="errors">0</div>
+                <div class="stat-label">Errors</div>
+            </div>
+        </div>
+
+
+        <div class="text-container" id="pauseButton2">
+            <div class="text-info" id="textInfo">
+                Click "New Text" to start with an interesting fact or story!
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="text-to-type" id="textToType">
+                Welcome to the ultimate typing speed test! Click "New Text" to begin your journey through fascinating
+                facts and captivating stories. Test your typing skills while learning something new!
+            </div>
+            <textarea class="typing-area" id="typingArea" placeholder="Start typing here..." disabled></textarea>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="newText()">📖 New Text</button>
+            <button class="btn" onclick="resetTest()">🔄 Reset</button>
+            <button class="btn" id="pauseButton">⏸ Pause</button>
+
+        </div>
+
+        <div class="results" id="results">
+            <h2>🎉 Test Complete!</h2>
+            <p id="finalResults"></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+
+</body>
+
+</html>

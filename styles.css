@@ -1,3 +1,12 @@
+:root {
+    --primary: #3498db;
+    --secondary: #2c3e50;
+    --accent: #e74c3c;
+    --light: #ecf0f1;
+    --dark: #2c3e50;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -6,11 +15,14 @@ body {
 }
 
 header {
-    background: linear-gradient(180deg , #0056b3,#35012e);
+    background: linear-gradient(180deg , #80bdff,#0004ff);
     color: #ffffff;
     padding: 1em;
     text-align: center;
 }
+  a {
+       text-decoration: none;
+   }
 
 nav ul {
     list-style: none;
@@ -68,10 +80,26 @@ button:hover {
     background-color: #0056b3;
 }
 
+
+
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
+#portfolio {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
 .portfolio-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
 }
 
 .portfolio-item {
@@ -79,19 +107,31 @@ button:hover {
     padding: 20px;
     border: 1px solid #dddddd;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+
+}
+.portfolio-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
 }
 
 .portfolio-item img {
     width: 100%;
-    height: 150px;
+    height: 240px;
     object-fit: cover;
-    margin-bottom: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    /* padding-bottom: 20px; */
 }
 
 .portfolio-item h2 {
     color: #007bff;
     margin-top: 0;
+    margin-bottom: 0px;
     text-align: center;
 }
 

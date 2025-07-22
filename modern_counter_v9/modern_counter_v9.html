@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Counter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --success-hover: #059669;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #475569;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            padding-bottom: 6px;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(15deg) scale(1.1);
+            border-color: var(--accent);
+        }
+
+        .counter-card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .counter-display {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .counter-display.bounce {
+            animation: bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            40% {
+                transform: translateY(-10px) scale(1.1);
+            }
+            60% {
+                transform: translateY(-5px) scale(1.05);
+            }
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px -5px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 1rem;
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+            /* transform: translateY(-1px); */
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), var(--danger-hover));
+            color: white;
+            padding: 1rem;
+        }
+
+        .btn-danger:hover {
+            /* transform: translateY(-1px); */
+            box-shadow: 0 8px 15px -5px rgba(239, 68, 68, 0.4);
+        }
+
+        .history-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .history-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;  /* Internet Explorer 10+ */
+        }
+
+        .history-list::-webkit-scrollbar {
+             display: none;  /* Chrome, Safari and Opera */
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            /* transform: translateX(5px); */
+            background: var(--border);
+        }
+
+        .history-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .remove-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .remove-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            background: var(--danger-hover);
+        }
+
+        .history-value {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .history-date {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-history {
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        .save-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transform: translateX(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .save-indicator.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .modal-text {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-cancel {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .modal-btn-cancel:hover {
+            background: var(--border);
+        }
+
+        .modal-btn-confirm {
+            background: var(--danger);
+            color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            background: var(--danger-hover);
+        }
+
+        @media (max-width: 480px) {
+            .counter-display {
+                font-size: 3rem;
+            }
+            
+            .counter-card {
+                padding: 2rem 1rem;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Counter</h1>
+            <button class="theme-toggle" id="themeToggle">🌙</button>
+        </div>
+
+        <div class="counter-card">
+            <div class="counter-display" id="counterDisplay">0</div>
+            <div class="button-group">
+                <button class="btn btn-primary" id="incrementBtn">+1</button>
+                <button class="btn btn-secondary" id="decrementBtn">-1</button>
+                <button class="btn btn-danger" id="resetBtn">Reset</button>
+            </div>
+        </div>
+
+        <div class="history-card">
+            <h2 class="history-title">Counter History</h2>
+            <div class="history-list" id="historyList">
+                <div class="empty-history">No reset history yet</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="save-indicator" id="saveIndicator">Saved!</div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3 class="modal-title">Remove History Record</h3>
+            <p class="modal-text">Are you sure you want to remove this history record? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="counter.cancelRemove()">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" onclick="counter.confirmRemoveAction()">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class Counter {
+            constructor() {
+                this.count = 0;
+                this.history = [];
+                this.isDark = true; // Default to dark mode
+                this.removeIndex = null; // Track which item to remove
+                this.init();
+            }
+
+            init() {
+                this.loadData();
+                this.bindEvents();
+                this.updateDisplay();
+                this.updateHistory();
+                this.setTheme();
+            }
+
+            bindEvents() {
+                document.getElementById('incrementBtn').addEventListener('click', () => this.increment());
+                document.getElementById('decrementBtn').addEventListener('click', () => this.decrement());
+                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+                document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
+                
+                // Close modal when clicking overlay
+                document.getElementById('modalOverlay').addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('modalOverlay')) {
+                        this.cancelRemove();
+                    }
+                });
+            }
+
+            increment() {
+                this.count++;
+                this.updateDisplay();
+                this.saveData();
+                this.animateCounter();
+            }
+
+            decrement() {
+                this.count--;
+                this.updateDisplay();
+                this.saveData();
+                this.animateCounter();
+            }
+
+            reset() {
+                if (this.count !== 0) {
+                    this.history.unshift({
+                        value: this.count,
+                        date: new Date().toLocaleString()
+                    });
+                }
+                this.count = 0;
+                this.updateDisplay();
+                this.updateHistory();
+                this.saveData();
+                this.animateCounter();
+            }
+
+            confirmRemove(index) {
+                this.removeIndex = index;
+                document.getElementById('modalOverlay').classList.add('show');
+            }
+
+            cancelRemove() {
+                this.removeIndex = null;
+                document.getElementById('modalOverlay').classList.remove('show');
+            }
+
+            confirmRemoveAction() {
+                if (this.removeIndex !== null) {
+                    this.history.splice(this.removeIndex, 1);
+                    this.updateHistory();
+                    this.saveData();
+                    this.cancelRemove();
+                }
+            }
+
+            animateCounter() {
+                const display = document.getElementById('counterDisplay');
+                display.classList.remove('bounce');
+                setTimeout(() => display.classList.add('bounce'), 10);
+                setTimeout(() => display.classList.remove('bounce'), 600);
+            }
+
+            updateDisplay() {
+                document.getElementById('counterDisplay').textContent = this.count;
+            }
+
+            updateHistory() {
+                const historyList = document.getElementById('historyList');
+                
+                if (this.history.length === 0) {
+                    historyList.innerHTML = '<div class="empty-history">No reset history yet</div>';
+                    return;
+                }
+
+                historyList.innerHTML = this.history.map((item, index) => `
+                    <div class="history-item">
+                        <div class="history-info">
+                            <span class="history-value">${item.value}</span>
+                            <span class="history-date">${item.date}</span>
+                        </div>
+                        <button class="remove-btn" onclick="counter.confirmRemove(${index})" title="Remove this record">×</button>
+                    </div>
+                `).join('');
+            }
+
+            toggleTheme() {
+                this.isDark = !this.isDark;
+                this.setTheme();
+                this.saveData();
+            }
+
+            setTheme() {
+                const body = document.body;
+                const toggle = document.getElementById('themeToggle');
+                
+                if (this.isDark) {
+                    body.setAttribute('data-theme', 'dark');
+                    toggle.textContent = '☀️';
+                } else {
+                    body.removeAttribute('data-theme');
+                    toggle.textContent = '🌙';
+                }
+            }
+
+            saveData() {
+                // In a real environment, this would use localStorage
+                // For this demo, data persists in memory during the session
+                // this.showSaveIndicator();
+                try {
+                    const data = {
+                        count: this.count,
+                        history: this.history,
+                        isDark: this.isDark
+                    };
+                    localStorage.setItem('counterApp', JSON.stringify(data));
+                    this.showSaveIndicator();
+                } catch (error) {
+                    console.warn('Could not save to localStorage:', error);
+                    // Fallback: data persists in memory during the session
+                    this.showSaveIndicator();
+                }
+            }
+
+            loadData() {
+                // In a real environment, this would load from localStorage
+                // For this demo, we start with default values
+                 try {
+                    const saved = localStorage.getItem('counterApp');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        this.count = data.count || 0;
+                        this.history = data.history || [];
+                        this.isDark = data.isDark !== undefined ? data.isDark : true;
+                    }
+                } catch (error) {
+                    console.warn('Could not load from localStorage:', error);
+                    // Use default values if loading fails
+                    this.count = 0;
+                    this.history = [];
+                    this.isDark = true;
+                }
+            }
+
+            showSaveIndicator() {
+                const indicator = document.getElementById('saveIndicator');
+                indicator.classList.add('show');
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 2000);
+            }
+        }
+
+        // Initialize the counter when the page loads
+        let counter;
+        document.addEventListener('DOMContentLoaded', () => {
+            counter = new Counter();
+        });
+    </script>
+</body>
+</html>
