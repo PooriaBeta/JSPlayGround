@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventory Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f3f4f6;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container_iphone {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      padding: 24px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th, td {
+      padding: 14px 10px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: #555;
+    }
+
+    td img.thumb {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+
+    .price {
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    .color-tag {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: middle;
+      border: 1px solid #ccc;
+    }
+
+    @media (max-width: 600px) {
+      th, td {
+        font-size: 14px;
+        padding: 10px 6px;
+      }
+      td img.thumb {
+        width: 30px;
+        height: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container_iphone">
+    <h2>Price Dashboard</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Image</th>
+          <th>Color</th>
+          <th>GB</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>iphone 16</td>
+          <td><img class="thumb" src="https://via.placeholder.com/36?text=M" alt="alt"></td>
+          <td><span class="color-tag" style="background:#000;"></span>Black</td>
+          <td>128</td>
+          <td class="price">$25.99</td>
+        </tr>
+        <tr>
+          <td>iphone 16 pro</td>
+          <td><img class="thumb" src="https://via.placeholder.com/36?text=K" alt="alt"></td>
+          <td><span class="color-tag" style="background:#444;"></span>Gray</td>
+          <td>256</td>
+          <td class="price">$19.49</td>
+        </tr>
+        <tr>
+          <td>iphone 16 pro max</td>
+          <td><img class="thumb" src="https://via.placeholder.com/36?text=H" alt="alt"></td>
+          <td><span class="color-tag" style="background:#222;"></span>Black</td>
+          <td>256</td>
+          <td class="price">$159.00</td>
+        </tr>
+        <tr>
+          <td>iphone 16 pro max</td>
+          <td><img class="thumb" src="https://via.placeholder.com/36?text=W" alt="alt"></td>
+          <td><span class="color-tag" style="background:#999;"></span>Silver</td>
+          <td>512</td>
+          <td class="price">$45.75</td>
+        </tr>
+        <tr>
+          <td>iphone 16 pro max</td>
+          <td><img class="thumb" src="https://via.placeholder.com/36?text=S" alt="alt"></td>
+          <td><span class="color-tag" style="background:#c0a16b;"></span>Bronze</td>
+          <td>1tb</td>
+          <td class="price">$32.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

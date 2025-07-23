@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Monitor Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f7;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .controls-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .controls:last-child {
+            margin-bottom: 0;
+        }
+
+        input, button, select {
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input[type="text"], input[type="url"] {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button.secondary {
+            background-color: #6c757d;
+        }
+
+        button.secondary:hover {
+            background-color: #545b62;
+        }
+
+        button.danger {
+            background-color: #dc3545;
+        }
+
+        button.danger:hover {
+            background-color: #c82333;
+        }
+
+        select {
+            min-width: 150px;
+        }
+
+        /* Product Table */
+        .products-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .product-image {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .color-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+        }
+
+        .price {
+            font-weight: 600;
+            color: #10b981;
+            font-size: 16px;
+        }
+
+        .price-change {
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .price-decrease {
+            color: #10b981;
+        }
+
+        .price-increase {
+            color: #dc3545;
+        }
+
+        .source-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .action-btn:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Card Layout */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .product-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .product-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 8px;
+        }
+
+        .product-details {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .remove-btn:hover {
+            color: #dc3545;
+            background-color: #f8f9fa;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .view-toggle button {
+            padding: 8px 16px;
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+
+        .view-toggle button.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls > * {
+                width: 100%;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 12px 8px;
+            }
+
+            .product-image {
+                width: 32px;
+                height: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Price Monitor Dashboard</h1>
+
+        <div class="controls-section">
+            <div class="controls">
+                <input type="url" id="productUrl" placeholder="Enter product URL" required>
+                <input type="text" id="productName" placeholder="Product name (optional)">
+                <button id="addProduct">Add Product</button>
+            </div>
+            
+            <div class="controls">
+                <select id="sortOrder">
+                    <option value="default">Sort by: Default</option>
+                    <option value="priceAsc">Price: Low to High</option>
+                    <option value="priceDesc">Price: High to Low</option>
+                    <option value="name">Name A-Z</option>
+                </select>
+                <input type="text" id="searchFilter" placeholder="Search products...">
+                <button id="loadDemo" class="secondary">Load Demo Data</button>
+                <button id="clearAll" class="danger">Clear All</button>
+            </div>
+        </div>
+
+        <div class="view-toggle">
+            <button id="tableView" class="active">Table View</button>
+            <button id="cardView">Card View</button>
+        </div>
+
+        <!-- Table View -->
+        <div id="tableContainer" class="products-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Image</th>
+                        <th>Details</th>
+                        <th>Price</th>
+                        <th>Source</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Card View -->
+        <div id="cardContainer" class="products-grid hidden">
+        </div>
+
+        <div id="emptyState" class="empty-state hidden">
+            <h3>No products added yet</h3>
+            <p>Add products using the form above or load demo data to get started.</p>
+        </div>
+    </div>
+
+    <script>
+        // In-memory storage for products
+        let products = [];
+        let currentView = 'table';
+
+        // Demo data
+        const demoProducts = [
+            {
+                id: 1,
+                name: 'iPhone 16 Pro',
+                price: 999.00,
+                previousPrice: 1099.00,
+                source: 'Apple Store',
+                url: 'https://apple.com/iphone-16-pro',
+                color: 'Space Black',
+                storage: '256GB',
+                image: 'https://via.placeholder.com/40x40/000000/FFFFFF?text=IP',
+                lastUpdated: new Date().toISOString()
+            },
+            {
+                id: 2,
+                name: 'Samsung Galaxy S24',
+                price: 849.00,
+                previousPrice: 799.00,
+                source: 'Samsung',
+                url: 'https://samsung.com/galaxy-s24',
+                color: 'Titanium Gray',
+                storage: '256GB',
+                image: 'https://via.placeholder.com/40x40/6c757d/FFFFFF?text=SG',
+                lastUpdated: new Date().toISOString()
+            },
+            {
+                id: 3,
+                name: 'MacBook Air M3',
+                price: 1299.00,
+                previousPrice: 1399.00,
+                source: 'Best Buy',
+                url: 'https://bestbuy.com/macbook-air-m3',
+                color: 'Silver',
+                storage: '512GB',
+                image: 'https://via.placeholder.com/40x40/c0c0c0/000000?text=MB',
+                lastUpdated: new Date().toISOString()
+            },
+            {
+                id: 4,
+                name: 'AirPods Pro 2',
+                price: 199.00,
+                previousPrice: 249.00,
+                source: 'Amazon',
+                url: 'https://amazon.com/airpods-pro-2',
+                color: 'White',
+                storage: 'N/A',
+                image: 'https://via.placeholder.com/40x40/ffffff/000000?text=AP',
+                lastUpdated: new Date().toISOString()
+            }
+        ];
+
+        // DOM elements
+        const productUrl = document.getElementById('productUrl');
+        const productName = document.getElementById('productName');
+        const addProductBtn = document.getElementById('addProduct');
+        const loadDemoBtn = document.getElementById('loadDemo');
+        const clearAllBtn = document.getElementById('clearAll');
+        const sortOrderSelect = document.getElementById('sortOrder');
+        const searchFilterInput = document.getElementById('searchFilter');
+        const tableViewBtn = document.getElementById('tableView');
+        const cardViewBtn = document.getElementById('cardView');
+        const tableContainer = document.getElementById('tableContainer');
+        const cardContainer = document.getElementById('cardContainer');
+        const productsTableBody = document.getElementById('productsTableBody');
+        const emptyState = document.getElementById('emptyState');
+
+        // Event listeners
+        addProductBtn.addEventListener('click', addProduct);
+        loadDemoBtn.addEventListener('click', loadDemoData);
+        clearAllBtn.addEventListener('click', clearAllProducts);
+        sortOrderSelect.addEventListener('change', renderProducts);
+        searchFilterInput.addEventListener('input', renderProducts);
+        tableViewBtn.addEventListener('click', () => switchView('table'));
+        cardViewBtn.addEventListener('click', () => switchView('card'));
+
+        // Functions
+        function addProduct() {
+            const url = productUrl.value.trim();
+            const name = productName.value.trim();
+            
+            if (!url) {
+                alert('Please enter a product URL');
+                return;
+            }
+
+            try {
+                const urlObj = new URL(url);
+                const newProduct = {
+                    id: Date.now(),
+                    name: name || `Product from ${urlObj.hostname.replace('www.', '')}`,
+                    price: (Math.random() * 1000 + 50).toFixed(2) * 1,
+                    previousPrice: (Math.random() * 1000 + 100).toFixed(2) * 1,
+                    source: urlObj.hostname.replace('www.', ''),
+                    url: url,
+                    color: 'Various',
+                    storage: 'N/A',
+                    image: `https://via.placeholder.com/40x40/007bff/FFFFFF?text=${urlObj.hostname.charAt(0).toUpperCase()}`,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                products.push(newProduct);
+                renderProducts();
+                productUrl.value = '';
+                productName.value = '';
+            } catch (error) {
+                alert('Please enter a valid URL');
+            }
+        }
+
+        function loadDemoData() {
+            products = [...demoProducts];
+            renderProducts();
+        }
+
+        function clearAllProducts() {
+            if (confirm('Are you sure you want to clear all products?')) {
+                products = [];
+                renderProducts();
+            }
+        }
+
+        function removeProduct(id) {
+            products = products.filter(product => product.id !== id);
+            renderProducts();
+        }
+
+        function switchView(view) {
+            currentView = view;
+            
+            // Update button states
+            tableViewBtn.classList.toggle('active', view === 'table');
+            cardViewBtn.classList.toggle('active', view === 'card');
+            
+            // Toggle containers
+            tableContainer.classList.toggle('hidden', view !== 'table');
+            cardContainer.classList.toggle('hidden', view !== 'card');
+            
+            renderProducts();
+        }
+
+        function getFilteredAndSortedProducts() {
+            const searchTerm = searchFilterInput.value.toLowerCase();
+            let filtered = products.filter(product =>
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.source.toLowerCase().includes(searchTerm) ||
+                product.color.toLowerCase().includes(searchTerm)
+            );
+
+            const sortOrder = sortOrderSelect.value;
+            switch (sortOrder) {
+                case 'priceAsc':
+                    filtered.sort((a, b) => a.price - b.price);
+                    break;
+                case 'priceDesc':
+                    filtered.sort((a, b) => b.price - a.price);
+                    break;
+                case 'name':
+                    filtered.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+            }
+
+            return filtered;
+        }
+
+        function getPriceChangeInfo(product) {
+            const change = product.price - product.previousPrice;
+            const changePercent = ((change / product.previousPrice) * 100).toFixed(1);
+            const changeClass = change < 0 ? 'price-decrease' : change > 0 ? 'price-increase' : '';
+            const changeSymbol = change < 0 ? '▼' : change > 0 ? '▲' : '';
+            
+            return { change, changePercent, changeClass, changeSymbol };
+        }
+
+        function getColorStyle(colorName) {
+            const colorMap = {
+                'black': '#000000',
+                'space black': '#1c1c1e',
+                'white': '#ffffff',
+                'silver': '#c0c0c0',
+                'gray': '#6c757d',
+                'titanium gray': '#6c757d',
+                'blue': '#007bff',
+                'green': '#28a745',
+                'red': '#dc3545',
+                'purple': '#6f42c1',
+                'gold': '#ffd700',
+                'bronze': '#cd7f32',
+                'various': '#6c757d'
+            };
+            
+            return colorMap[colorName.toLowerCase()] || '#6c757d';
+        }
+
+        function renderTableView(filteredProducts) {
+            productsTableBody.innerHTML = '';
+
+            filteredProducts.forEach(product => {
+                const priceInfo = getPriceChangeInfo(product);
+                const colorStyle = getColorStyle(product.color);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <strong>${product.name}</strong>
+                        <div class="source-info">Added ${new Date(product.lastUpdated).toLocaleDateString()}</div>
+                    </td>
+                    <td>
+                        <img src="${product.image}" alt="${product.name}" class="product-image">
+                    </td>
+                    <td>
+                        <div class="color-indicator">
+                            <span class="color-dot" style="background-color: ${colorStyle}"></span>
+                            ${product.color}
+                        </div>
+                        <div class="source-info">${product.storage}</div>
+                    </td>
+                    <td>
+                        <span class="price">$${product.price.toFixed(2)}</span>
+                        <span class="price-change ${priceInfo.changeClass}">
+                            ${priceInfo.changeSymbol} ${Math.abs(priceInfo.changePercent)}%
+                        </span>
+                    </td>
+                    <td>
+                        <div>${product.source}</div>
+                        <div class="source-info">
+                            <a href="${product.url}" target="_blank" rel="noopener">View Product</a>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="action-btn" onclick="removeProduct(${product.id})" title="Remove product">
+                            ✕
+                        </button>
+                    </td>
+                `;
+                productsTableBody.appendChild(row);
+            });
+        }
+
+        function renderCardView(filteredProducts) {
+            cardContainer.innerHTML = '';
+
+            filteredProducts.forEach(product => {
+                const priceInfo = getPriceChangeInfo(product);
+                const colorStyle = getColorStyle(product.color);
+                
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <button class="remove-btn" onclick="removeProduct(${product.id})" title="Remove product">✕</button>
+                    <div class="product-title">${product.name}</div>
+                    <div class="product-price">
+                        $${product.price.toFixed(2)}
+                        <span class="price-change ${priceInfo.changeClass}">
+                            ${priceInfo.changeSymbol} ${Math.abs(priceInfo.changePercent)}%
+                        </span>
+                    </div>
+                    <div class="product-details">
+                        <div class="color-indicator">
+                            <span class="color-dot" style="background-color: ${colorStyle}"></span>
+                            ${product.color} • ${product.storage}
+                        </div>
+                    </div>
+                    <div class="product-details">Source: ${product.source}</div>
+                    <div class="product-details">
+                        <a href="${product.url}" target="_blank" rel="noopener">View Product</a>
+                    </div>
+                    <div class="source-info">Added ${new Date(product.lastUpdated).toLocaleDateString()}</div>
+                `;
+                cardContainer.appendChild(card);
+            });
+        }
+
+        function renderProducts() {
+            const filteredProducts = getFilteredAndSortedProducts();
+
+            // Show/hide empty state
+            const hasProducts = filteredProducts.length > 0;
+            emptyState.classList.toggle('hidden', hasProducts);
+            tableContainer.classList.toggle('hidden', !hasProducts || currentView !== 'table');
+            cardContainer.classList.toggle('hidden', !hasProducts || currentView !== 'card');
+
+            if (!hasProducts) return;
+
+            if (currentView === 'table') {
+                renderTableView(filteredProducts);
+            } else {
+                renderCardView(filteredProducts);
+            }
+        }
+
+        // Initialize the dashboard
+        renderProducts();
+    </script>
+</body>
+</html>
