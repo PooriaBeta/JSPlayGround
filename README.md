@@ -1,2 +1,1 @@
-readme
-me
+Js playGround for children
