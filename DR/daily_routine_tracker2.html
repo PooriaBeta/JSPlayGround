@@ -14,14 +14,107 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #4a6fa5 100%);
             min-height: 100vh;
             padding: 20px;
         }
 
+        /* Sidebar styles */
+        .sidebar {
+            height: 100vh;
+            width: 280px;
+            background: linear-gradient(135deg, #2d355c 0%, #495aa6 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: none;
+            /* Hidden on desktop */
+        }
+
+        .sidebar-nav {
+            padding: 20px;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: block;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-nav a i {
+            margin-right: 10px;
+        }
+
+        /* Menu toggle button */
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #f0f0f0 100%);
+            color: white;
+            border: none;
+            border-radius: 2px;
+            width: 45px;
+            height: 45px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1001;
+            display: none;
+            /* Hidden on desktop initially */
+        }
+
+        /* end .sidebar */
+
         .container {
             max-width: 800px;
             margin: 0 auto;
+            /* padding: 20px; */
+            transition: margin-left 0.3s ease;
         }
 
         .header {
@@ -70,18 +163,17 @@
 
         #addBtn {
             padding: 15px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #4a6fa5 100%);
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.3s;
         }
 
         #addBtn:hover {
-            transform: translateY(-2px);
-        }
+            background: linear-gradient(135deg, #3549a6 0%, #304c76 100%);        }
 
         .tasks-list {
             list-style: none;
@@ -159,7 +251,7 @@
 
         .stat-label-bar {
             color: #6c757d;
-            margin-top: 8px;
+            margin-top: 9px;
         }
 
 
@@ -267,13 +359,86 @@
             color: #6c757d;
             padding: 40px;
         }
+
+        /* Desktop styles */
+        /* Default: hide sidebar on desktop */
+        @media (min-width: 768px) {
+            #sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 250px;
+                /* adjust as needed */
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+                z-index: 1000;
+            }
+
+            #sidebar.open {
+                transform: translateX(0);
+            }
+            .menu-toggle {
+                display:block;
+                opacity: 0;
+            }
+
+            .sidebar-close {
+                display: none;
+            }
+        }
+
+        /* Mobile styles */
+        @media (max-width: 767px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .sidebar-close {
+                display: block;
+            }
+
+            .container {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+
+            .sidebar {
+                width: 100vw;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <!-- Menu Toggle Button (Mobile) -->
+    <button class="menu-toggle" id="menuToggle">☰</button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Navigation</h2>
+            <button class="sidebar-close" id="sidebarClose">×</button>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="\Codeher\Port01\test.html">🏠 Home</a></li>
+                <li><a href="#tasks">📝 Tasks</a></li>
+                <li><a href="\Codeher\Port01\typing_speed_test\typing_speed_test.html">📊 Statistics</a></li>
+                <li><a href="\Codeher\Port01\schadule js\schadule1.html">📅 History</a></li>
+                <li><a href="#settings">⚙️ Settings</a></li>
+                <li><a href="#profile">👤 Profile</a></li>
+                <li><a href="#help">❓ Help</a></li>
+                <li><a href="#logout">🚪 Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+
     <div class="container">
         <div class="header">
-            <h1>📋 Daily Routine</h1>
+            <h1>📋</h1>
             <div class="current-date" id="currentDate"></div>
         </div>
 
@@ -314,7 +479,95 @@
     </div>
 
     <script>
-        const DEFAULT_TASKS = ["UP", "T", "D", "N", "CR", "----", "T", "N", "L", "PT", "P", "D"];
+        // Sidebar functionality
+        // const menuToggle = document.getElementById('menuToggle');
+        // const sidebar = document.getElementById('sidebar');
+        // const sidebarClose = document.getElementById('sidebarClose');
+
+        // // Open sidebar (mobile)
+        // menuToggle.addEventListener('click', () => {
+        //     sidebar.classList.add('open');
+        // });
+
+        // // Close sidebar (mobile)
+        // sidebarClose.addEventListener('click', () => {
+        //     sidebar.classList.remove('open');
+        // });
+
+        // // Close sidebar when clicking outside (mobile)
+        // document.addEventListener('click', (event) => {
+        //     if (window.innerWidth < 768 && 
+        //         !sidebar.contains(event.target) && 
+        //         event.target !== menuToggle) {
+        //         sidebar.classList.remove('open');
+        //     }
+        // });
+
+
+        // Sidebar functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarClose = document.getElementById('sidebarClose');
+
+        // Open sidebar (mobile click)
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.add('open');
+        });
+
+        // Close sidebar (mobile)
+        sidebarClose.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+        });
+
+        // Close sidebar when clicking outside (mobile only)
+        document.addEventListener('click', (event) => {
+            if (window.innerWidth < 768 &&
+                !sidebar.contains(event.target) &&
+                event.target !== menuToggle) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // === HOVER FUNCTIONALITY FOR DESKTOP ===
+        // Only enable hover behavior on desktop (>= 768px)
+        if (window.innerWidth >= 768) {
+            menuToggle.addEventListener('mouseenter', () => {
+                sidebar.classList.add('open');
+            });
+
+            menuToggle.addEventListener('mouseleave', () => {
+                // Delay closing slightly to allow mouse to reach sidebar
+                setTimeout(() => {
+                    if (!sidebar.matches(':hover')) {
+                        sidebar.classList.remove('open');
+                    }
+                }, 150);
+            });
+
+            // Optional: Keep sidebar open when hovering over it
+            sidebar.addEventListener('mouseenter', () => {
+                sidebar.classList.add('open');
+            });
+
+            sidebar.addEventListener('mouseleave', () => {
+                sidebar.classList.remove('open');
+            });
+        }
+
+        // Optional: Re-evaluate on resize (e.g., if user resizes window across 768px)
+        let isDesktop = window.innerWidth >= 768;
+        window.addEventListener('resize', () => {
+            const newIsDesktop = window.innerWidth >= 768;
+            if (newIsDesktop !== isDesktop) {
+                isDesktop = newIsDesktop;
+                if (!isDesktop) {
+                    // On mobile, ensure sidebar isn't stuck open due to hover
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        const DEFAULT_TASKS = ["UP", "T", "D", "N", "CR", "----", "T", "N", "L", "PT", "P", "D", "+3"];
 
         const state = {
             tasks: [],

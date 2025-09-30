@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 Daily Routine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            height: 100vh;
+            width: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: none; /* Hidden on desktop */
+        }
+
+        .sidebar-nav {
+            padding: 20px;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: block;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-nav a i {
+            margin-right: 10px;
+        }
+
+        /* Menu toggle button */
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1001;
+            display: none; /* Hidden on desktop initially */
+        }
+
+        /* Main container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Your existing styles */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .current-date {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #taskInput {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        #taskInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #addBtn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        #addBtn:hover {
+            transform: translateY(-2px);
+        }
+
+        .tasks-list {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .tasks-list li {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .tasks-list li.completed {
+            border-left-color: #48bb78;
+            opacity: 0.7;
+        }
+
+        .tasks-list input[type="checkbox"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .tasks-list span {
+            flex: 1;
+        }
+
+        .tasks-list .delete-btn {
+            background: none;
+            border: none;
+            color: #e53e3e;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .progress-bar-container {
+            width: 100px;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin: 0 auto 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .stat-label-bar {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .history-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .history-header h2 {
+            color: #4a5568;
+        }
+
+        .toggle-history {
+            padding: 8px 16px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #4a5568;
+        }
+
+        .history-list {
+            display: none;
+        }
+
+        .history-list.show {
+            display: block;
+        }
+
+        .history-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* Desktop styles */
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0);
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .container {
+                margin-left: 280px;
+            }
+            
+            .menu-toggle {
+                display: none;
+            }
+            
+            .sidebar-close {
+                display: none;
+            }
+        }
+
+        /* Mobile styles */
+        @media (max-width: 767px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .sidebar-close {
+                display: block;
+            }
+            
+            .container {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+            
+            .sidebar {
+                width: 100vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu Toggle Button (Mobile) -->
+    <button class="menu-toggle" id="menuToggle">☰</button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Navigation</h2>
+            <button class="sidebar-close" id="sidebarClose">×</button>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="#home">🏠 Home</a></li>
+                <li><a href="#tasks">📝 Tasks</a></li>
+                <li><a href="#stats">📊 Statistics</a></li>
+                <li><a href="#history">📅 History</a></li>
+                <li><a href="#settings">⚙️ Settings</a></li>
+                <li><a href="#profile">👤 Profile</a></li>
+                <li><a href="#help">❓ Help</a></li>
+                <li><a href="#logout">🚪 Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="header">
+            <h1>📋 Daily Routine</h1>
+            <div class="current-date" id="currentDate"></div>
+        </div>
+
+        <div class="main-card">
+            <div class="input-section">
+                <input type="text" id="taskInput" placeholder="Add a new task..." />
+                <button id="addBtn">Add Task</button>
+            </div>
+
+            <ul class="tasks-list" id="tasksList"></ul>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalTasks">0</div>
+                    <div class="stat-label">Total Tasks</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completedTasks">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="stat-label-bar">Completion Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <div class="history-header">
+                <h2>Previous Days</h2>
+                <button class="toggle-history" id="toggleHistory">Show History</button>
+            </div>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarClose = document.getElementById('sidebarClose');
+
+        // Open sidebar (mobile)
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.add('open');
+        });
+
+        // Close sidebar (mobile)
+        sidebarClose.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+        });
+
+        // Close sidebar when clicking outside (mobile)
+        document.addEventListener('click', (event) => {
+            if (window.innerWidth < 768 && 
+                !sidebar.contains(event.target) && 
+                event.target !== menuToggle) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Existing functionality
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(task => task.completed).length;
+            const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('progressBar').style.width = completionRate + '%';
+            document.getElementById('progressBar').textContent = completionRate + '%';
+        }
+
+        function renderTasks() {
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                if (task.completed) {
+                    li.classList.add('completed');
+                }
+
+                li.innerHTML = `
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} data-index="${index}">
+                    <span>${task.text}</span>
+                    <button class="delete-btn" data-index="${index}">×</button>
+                `;
+
+                tasksList.appendChild(li);
+            });
+
+            updateStats();
+        }
+
+        document.getElementById('addBtn').addEventListener('click', () => {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+
+            if (text) {
+                tasks.push({ text, completed: false });
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                input.value = '';
+                renderTasks();
+            }
+        });
+
+        document.getElementById('taskInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('addBtn').click();
+            }
+        });
+
+        document.getElementById('tasksList').addEventListener('click', (e) => {
+            if (e.target.type === 'checkbox') {
+                const index = e.target.dataset.index;
+                tasks[index].completed = e.target.checked;
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                renderTasks();
+            }
+
+            if (e.target.classList.contains('delete-btn')) {
+                const index = e.target.dataset.index;
+                tasks.splice(index, 1);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                renderTasks();
+            }
+        });
+
+        document.getElementById('toggleHistory').addEventListener('click', () => {
+            const historyList = document.getElementById('historyList');
+            historyList.classList.toggle('show');
+            
+            const button = document.getElementById('toggleHistory');
+            button.textContent = historyList.classList.contains('show') ? 'Hide History' : 'Show History';
+        });
+
+        // Initialize
+        renderTasks();
+    </script>
+</body>
+</html>
