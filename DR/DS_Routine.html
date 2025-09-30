@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Routine Tracker</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --accent-color: #ff7e5f;
+            --light-color: #f5f7fa;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .date-display {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            background-color: #e9ecef;
+            border-radius: var(--border-radius);
+            height: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .task-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .task-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .task-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .task-label {
+            flex: 1;
+            font-size: 1.1rem;
+        }
+
+        .task-completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .history-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .history-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .history-list {
+            list-style: none;
+        }
+
+        .history-item {
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: var(--border-radius);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-date {
+            font-weight: bold;
+        }
+
+        .history-completion {
+            color: var(--success-color);
+        }
+
+        .add-task-form {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .add-task-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+            font-size: 1rem;
+        }
+
+        .add-task-button {
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .add-task-button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .delete-task {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .task-label {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Daily Routine Tracker</h1>
+            <div class="date-display" id="currentDate"></div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div id="progressText">0% Complete</div>
+        </header>
+
+        <div class="add-task-form">
+            <input type="text" class="add-task-input" id="newTaskInput" placeholder="Add a new task to your routine...">
+            <button class="add-task-button" id="addTaskButton">Add Task</button>
+        </div>
+
+        <ul class="task-list" id="taskList">
+            <!-- Tasks will be added here dynamically -->
+        </ul>
+
+        <div class="history-section">
+            <h2 class="history-title">Previous Days</h2>
+            <ul class="history-list" id="historyList">
+                <!-- History items will be added here dynamically -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const currentDateEl = document.getElementById('currentDate');
+            const taskListEl = document.getElementById('taskList');
+            const historyListEl = document.getElementById('historyList');
+            const progressBarEl = document.getElementById('progressBar');
+            const progressTextEl = document.getElementById('progressText');
+            const newTaskInputEl = document.getElementById('newTaskInput');
+            const addTaskButtonEl = document.getElementById('addTaskButton');
+
+            // Get today's date in YYYY-MM-DD format
+            const today = new Date().toISOString().split('T')[0];
+            currentDateEl.textContent = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            // Initialize tasks and history from localStorage or set defaults
+            let tasks = JSON.parse(localStorage.getItem('dailyTasks')) || [
+                { id: 1, text: 'Morning meditation', completed: false },
+                { id: 2, text: 'Exercise for 30 minutes', completed: false },
+                { id: 3, text: 'Read for 20 minutes', completed: false },
+                { id: 4, text: 'Plan your day', completed: false }
+            ];
+            
+            let history = JSON.parse(localStorage.getItem('taskHistory')) || [];
+
+            // Check if we need to reset tasks for a new day
+            const lastResetDate = localStorage.getItem('lastResetDate');
+            if (lastResetDate !== today) {
+                // Save today's completion to history before resetting
+                if (lastResetDate) {
+                    const completedTasks = tasks.filter(task => task.completed).length;
+                    const totalTasks = tasks.length;
+                    const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+                    
+                    history.unshift({
+                        date: lastResetDate,
+                        completionRate: completionRate,
+                        completedTasks: completedTasks,
+                        totalTasks: totalTasks
+                    });
+                    
+                    // Keep only last 7 days of history
+                    if (history.length > 7) {
+                        history = history.slice(0, 7);
+                    }
+                    
+                    localStorage.setItem('taskHistory', JSON.stringify(history));
+                }
+                
+                // Reset tasks for the new day
+                tasks = tasks.map(task => ({
+                    ...task,
+                    completed: false
+                }));
+                
+                localStorage.setItem('dailyTasks', JSON.stringify(tasks));
+                localStorage.setItem('lastResetDate', today);
+            }
+
+            // Render tasks
+            function renderTasks() {
+                taskListEl.innerHTML = '';
+                
+                if (tasks.length === 0) {
+                    taskListEl.innerHTML = '<div class="empty-state">No tasks yet. Add your first task above!</div>';
+                    return;
+                }
+                
+                tasks.forEach(task => {
+                    const taskItem = document.createElement('li');
+                    taskItem.className = 'task-item';
+                    
+                    taskItem.innerHTML = `
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-id="${task.id}">
+                        <span class="task-label ${task.completed ? 'task-completed' : ''}">${task.text}</span>
+                        <button class="delete-task" data-id="${task.id}">×</button>
+                    `;
+                    
+                    taskListEl.appendChild(taskItem);
+                });
+                
+                updateProgress();
+            }
+
+            // Render history
+            function renderHistory() {
+                historyListEl.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyListEl.innerHTML = '<div class="empty-state">No history yet. Complete some tasks today!</div>';
+                    return;
+                }
+                
+                history.forEach(day => {
+                    const historyItem = document.createElement('li');
+                    historyItem.className = 'history-item';
+                    
+                    const date = new Date(day.date);
+                    const formattedDate = date.toLocaleDateString('en-US', { 
+                        weekday: 'short', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                    
+                    historyItem.innerHTML = `
+                        <span class="history-date">${formattedDate}</span>
+                        <span class="history-completion">${day.completionRate}% (${day.completedTasks}/${day.totalTasks})</span>
+                    `;
+                    
+                    historyListEl.appendChild(historyItem);
+                });
+            }
+
+            // Update progress bar and text
+            function updateProgress() {
+                const completedTasks = tasks.filter(task => task.completed).length;
+                const totalTasks = tasks.length;
+                const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+                
+                progressBarEl.style.width = `${completionRate}%`;
+                progressTextEl.textContent = `${completionRate}% Complete (${completedTasks}/${totalTasks} tasks)`;
+            }
+
+            // Add new task
+            function addTask() {
+                const text = newTaskInputEl.value.trim();
+                if (text === '') return;
+                
+                const newTask = {
+                    id: Date.now(), // Simple ID generation
+                    text: text,
+                    completed: false
+                };
+                
+                tasks.push(newTask);
+                localStorage.setItem('dailyTasks', JSON.stringify(tasks));
+                renderTasks();
+                
+                newTaskInputEl.value = '';
+            }
+
+            // Event listeners
+            taskListEl.addEventListener('click', function(e) {
+                // Toggle task completion
+                if (e.target.classList.contains('task-checkbox')) {
+                    const taskId = parseInt(e.target.dataset.id);
+                    const task = tasks.find(t => t.id === taskId);
+                    
+                    if (task) {
+                        task.completed = e.target.checked;
+                        localStorage.setItem('dailyTasks', JSON.stringify(tasks));
+                        renderTasks();
+                    }
+                }
+                
+                // Delete task
+                if (e.target.classList.contains('delete-task')) {
+                    const taskId = parseInt(e.target.dataset.id);
+                    tasks = tasks.filter(t => t.id !== taskId);
+                    localStorage.setItem('dailyTasks', JSON.stringify(tasks));
+                    renderTasks();
+                }
+            });
+
+            addTaskButtonEl.addEventListener('click', addTask);
+            
+            newTaskInputEl.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addTask();
+                }
+            });
+
+            // Initial render
+            renderTasks();
+            renderHistory();
+        });
+    </script>
+</body>
+</html>
