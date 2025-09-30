@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Trading Simulator</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .section h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .price-display {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .current-price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .price-label {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .control-row input,
+        .control-row select {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .control-row input:focus,
+        .control-row select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .control-row label {
+            font-weight: 600;
+            color: #1e3c72;
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-buy {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-buy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-sell {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-sell:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(250, 112, 154, 0.4);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-quick {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: #333;
+            font-weight: 600;
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-quick:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(168, 237, 234, 0.4);
+        }
+
+        .trading-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .portfolio {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .portfolio-item {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
+        }
+
+        .portfolio-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .portfolio-value:hover {
+            transform: scale(1.05);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .portfolio-value:active {
+            transform: scale(0.98);
+        }
+
+        .portfolio-label {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .copy-tooltip {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .copy-tooltip.show {
+            opacity: 1;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-header h3 {
+            color: #1e3c72;
+            margin: 0;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .chart-btn {
+            padding: 5px 10px;
+            border: 1px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .chart-btn.active,
+        .chart-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        #portfolioChart {
+            width: 100%;
+            height: 200px;
+        }
+
+        .transaction-log {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .transaction-buy {
+            border-left-color: #4facfe;
+        }
+
+        .transaction-sell {
+            border-left-color: #fa709a;
+        }
+
+        .transaction-time {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .current-price {
+                font-size: 2rem;
+            }
+        }
+
+        .emoji {
+            font-size: 1.2em;
+        }
+
+        /* #portfolioChart {
+            width: 100%;
+            height: 100%;
+            display: block;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000;
+        } */
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Demo Trading Simulator</h1>
+            <p>Practice your trading skills with virtual money - no risk involved!</p>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2><span class="emoji">📈</span> Market & Trading</h2>
+
+                <div class="price-display">
+                    <div class="current-price" id="currentPrice">$50,000.00</div>
+                    <div class="price-label">DEMO COIN (DMC)</div>
+                </div>
+
+                <div class="control-row">
+                    <input type="number" id="priceInput" placeholder="Enter new price" step="0.01">
+                    <button class="btn btn-primary" onclick="updatePrice()">Update Price</button>
+                </div>
+
+                <div class="control-row">
+                    <label for="feeSelect">Transaction Fee:</label>
+                    <select id="feeSelect" onchange="updateFee()">
+                        <option value="0">0% (No Fee)</option>
+                        <option value="0.1" selected>0.1%</option>
+                        <option value="0.25">0.25%</option>
+                        <option value="0.5">0.5%</option>
+                        <option value="1">1.0%</option>
+                    </select>
+                </div>
+
+                <div class="control-row">
+                    <input type="number" id="quantityInput" placeholder="Quantity" step="0.001" min="0" value="1">
+                </div>
+
+                <div class="quick-actions">
+                    <button class="btn-quick" onclick="setPercentage(25)">25%</button>
+                    <button class="btn-quick" onclick="setPercentage(50)">50%</button>
+                    <button class="btn-quick" onclick="setPercentage(100)">100%</button>
+                </div>
+
+                <div class="trading-controls">
+                    <button class="btn btn-buy" onclick="buyCoins()">🔥 BUY</button>
+                    <button class="btn btn-sell" onclick="sellCoins()">💎 SELL</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="emoji">💼</span> Your Portfolio</h2>
+
+                <div class="portfolio">
+                    <div class="portfolio-item">
+                        <div class="portfolio-value" id="balanceDisplay" onclick="copyToClipboard(this)"
+                            title="Click to copy">$100,000.00</div>
+                        <div class="portfolio-label">Cash Balance</div>
+                    </div>
+                    <div class="portfolio-item">
+                        <div class="portfolio-value" id="coinsDisplay" onclick="copyToClipboard(this)"
+                            title="Click to copy">0.000</div>
+                        <div class="portfolio-label">DMC Holdings</div>
+                    </div>
+                </div>
+
+                <div class="portfolio">
+                    <div class="portfolio-item">
+                        <div class="portfolio-value" id="totalValueDisplay" onclick="copyToClipboard(this)"
+                            title="Click to copy">$100,000.00</div>
+                        <div class="portfolio-label">Total Portfolio Value</div>
+                    </div>
+                    <div class="portfolio-item">
+                        <div class="portfolio-value" id="profitLossDisplay" onclick="copyToClipboard(this)"
+                            title="Click to copy">$0.00</div>
+                        <div class="portfolio-label">Profit/Loss</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3><span class="emoji">📈</span> Portfolio History</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" onclick="setChartTimeframe('all', this)">All</button>
+                            <button class="chart-btn" onclick="setChartTimeframe('1h', this)">1H</button>
+                            <button class="chart-btn" onclick="setChartTimeframe('30m', this)">30M</button>
+                        </div>
+                    </div>
+                    <canvas id="portfolioChart"></canvas>
+                </div>
+
+                <h3 style="margin: 20px 0 15px 0; color: #1e3c72;"><span class="emoji">📊</span> Transaction History
+                </h3>
+                <div class="transaction-log" id="transactionLog">
+                    <p style="color: #666; text-align: center; padding: 20px;">No transactions yet. Start trading!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+    // Trading state
+    let currentPrice = 50000;
+    let balance = 100000;
+    let coinHoldings = 0;
+    let transactions = [];
+    let initialBalance = 100000;
+    let currentFee = 0.1;
+    let portfolioHistory = [];
+    let chart = null;
+    let chartTimeframe = 'all';
+    let chartUpdateTimeout = null;
+
+    // Constants for memory management
+    const MAX_PORTFOLIO_POINTS = 500;
+    const MAX_TRANSACTIONS = 100;
+    const CHART_UPDATE_DEBOUNCE = 100;
+
+    // Initialize portfolio history
+    portfolioHistory.push({
+        timestamp: Date.now(),
+        value: 100000
+    });
+
+    // Update display elements
+    function updateDisplay() {
+        document.getElementById('currentPrice').textContent = `$${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        document.getElementById('balanceDisplay').textContent = `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        document.getElementById('coinsDisplay').textContent = coinHoldings.toFixed(6);
+
+        const totalValue = balance + (coinHoldings * currentPrice);
+        const profitLoss = totalValue - initialBalance;
+
+        document.getElementById('totalValueDisplay').textContent = `$${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+        const profitLossElement = document.getElementById('profitLossDisplay');
+        profitLossElement.textContent = `$${profitLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        profitLossElement.style.color = profitLoss >= 0 ? '#4facfe' : '#fa709a';
+    }
+
+    // Update price manually
+    function updatePrice() {
+        const priceInput = document.getElementById('priceInput');
+        const newPrice = parseFloat(priceInput.value);
+
+        if (newPrice && newPrice > 0) {
+            currentPrice = newPrice;
+            priceInput.value = '';
+            updateDisplay();
+            updatePortfolioHistory();
+        } else {
+            alert('Please enter a valid positive price');
+        }
+    }
+
+    // Update fee
+    function updateFee() {
+        const feeSelect = document.getElementById('feeSelect');
+        currentFee = parseFloat(feeSelect.value);
+    }
+
+    // Set quantity based on percentage of available funds
+    function setPercentage(percentage) {
+        const quantityInput = document.getElementById('quantityInput');
+        const maxBuyQuantity = balance / currentPrice;
+        const buyQuantity = (maxBuyQuantity * percentage) / 100;
+        quantityInput.value = buyQuantity.toFixed(6);
+    }
+
+    // Buy coins
+    function buyCoins() {
+        const quantity = parseFloat(document.getElementById('quantityInput').value);
+
+        if (!quantity || quantity <= 0) {
+            alert('Please enter a valid quantity');
+            return;
+        }
+
+        const subtotal = quantity * currentPrice;
+        const feeAmount = subtotal * (currentFee / 100);
+        const totalCost = subtotal + feeAmount;
+
+        if (totalCost > balance) {
+            alert(`Insufficient balance. Need $${totalCost.toFixed(2)} (including $${feeAmount.toFixed(2)} fee)`);
+            return;
+        }
+
+        balance -= totalCost;
+        coinHoldings += quantity;
+
+        addTransaction('BUY', quantity, currentPrice, subtotal, feeAmount);
+        updateDisplay();
+        updatePortfolioHistory();
+    }
+
+    // Sell coins
+    function sellCoins() {
+        const quantity = parseFloat(document.getElementById('quantityInput').value);
+
+        if (!quantity || quantity <= 0) {
+            alert('Please enter a valid quantity');
+            return;
+        }
+
+        if (quantity > coinHoldings) {
+            alert('Insufficient coins to sell');
+            return;
+        }
+
+        const subtotal = quantity * currentPrice;
+        const feeAmount = subtotal * (currentFee / 100);
+        const totalReceived = subtotal - feeAmount;
+
+        balance += totalReceived;
+        coinHoldings -= quantity;
+
+        addTransaction('SELL', quantity, currentPrice, subtotal, feeAmount);
+        updateDisplay();
+        updatePortfolioHistory();
+    }
+
+    // Add transaction to log
+    function addTransaction(type, quantity, price, subtotal, feeAmount) {
+        const transaction = {
+            type: type,
+            quantity: quantity,
+            price: price,
+            subtotal: subtotal,
+            fee: feeAmount,
+            total: type === 'BUY' ? subtotal + feeAmount : subtotal - feeAmount,
+            timestamp: new Date()
+        };
+
+        transactions.unshift(transaction);
+
+        // Keep only last MAX_TRANSACTIONS
+        if (transactions.length > MAX_TRANSACTIONS) {
+            transactions.length = MAX_TRANSACTIONS;
+        }
+
+        updateTransactionLog();
+    }
+
+    // Update transaction log display
+    function updateTransactionLog() {
+        const logElement = document.getElementById('transactionLog');
+
+        if (transactions.length === 0) {
+            logElement.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No transactions yet. Start trading!</p>';
+            return;
+        }
+
+        logElement.innerHTML = transactions.slice(0, 10).map(transaction => `
+            <div class="transaction-item transaction-${transaction.type.toLowerCase()}">
+                <strong>${transaction.type}</strong> ${transaction.quantity.toFixed(6)} DMC 
+                @ $${transaction.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <br>
+                Subtotal: $${transaction.subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ${transaction.fee > 0 ? ` | Fee: $${transaction.fee.toFixed(2)}` : ''}
+                <br>
+                <strong>Total: $${transaction.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                <div class="transaction-time">${transaction.timestamp.toLocaleTimeString()}</div>
+            </div>
+        `).join('');
+    }
+
+    // Update portfolio history with smart sampling
+    function updatePortfolioHistory() {
+        const totalValue = balance + (coinHoldings * currentPrice);
+        const now = Date.now();
+        
+        portfolioHistory.push({
+            timestamp: now,
+            value: totalValue
+        });
+
+        // Aggressively manage memory by sampling old data
+        if (portfolioHistory.length > MAX_PORTFOLIO_POINTS) {
+            portfolioHistory = samplePortfolioData(portfolioHistory, MAX_PORTFOLIO_POINTS);
+        }
+
+        scheduleChartUpdate();
+    }
+
+    // Smart data sampling to preserve shape while reducing points
+    function samplePortfolioData(data, maxPoints) {
+        if (data.length <= maxPoints) return data;
+
+        const result = [];
+        const step = data.length / maxPoints;
+        
+        // Always keep first point
+        result.push(data[0]);
+        
+        // Sample middle points
+        for (let i = 1; i < maxPoints - 1; i++) {
+            const index = Math.floor(i * step);
+            result.push(data[index]);
+        }
+        
+        // Always keep last point
+        result.push(data[data.length - 1]);
+        
+        return result;
+    }
+
+    // Debounced chart update to prevent excessive renders
+    function scheduleChartUpdate() {
+        if (chartUpdateTimeout) {
+            clearTimeout(chartUpdateTimeout);
+        }
+        
+        chartUpdateTimeout = setTimeout(() => {
+            updateChart();
+            chartUpdateTimeout = null;
+        }, CHART_UPDATE_DEBOUNCE);
+    }
+
+    // Copy to clipboard function
+    function copyToClipboard(element) {
+        const text = element.textContent.replace(/[$,]/g, '');
+        navigator.clipboard.writeText(text).then(() => {
+            showCopyTooltip(element);
+        }).catch(() => {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showCopyTooltip(element);
+        });
+    }
+
+    // Show copy tooltip
+    function showCopyTooltip(element) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'copy-tooltip show';
+        tooltip.textContent = 'Copied!';
+        element.appendChild(tooltip);
+
+        setTimeout(() => {
+            if (element.contains(tooltip)) {
+                element.removeChild(tooltip);
+            }
+        }, 1500);
+    }
+
+    // Initialize chart with optimized settings
+    function initChart() {
+        const canvas = document.getElementById('portfolioChart');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        
+        // Clean up existing chart
+        if (chart) {
+            chart.destroy();
+            chart = null;
+        }
+        
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Portfolio Value',
+                    data: [],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    pointHitRadius: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Value: $' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 10
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            drawTicks: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 8,
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+        
+        // updateChart();
+    }
+
+    // Optimized chart update
+    function updateChart() {
+        if (!chart) return;
+        
+        try {
+            let filteredData = portfolioHistory;
+            const now = Date.now();
+
+            // Apply timeframe filter
+            if (chartTimeframe === '30m') {
+                const cutoff = now - 30 * 60 * 1000;
+                filteredData = portfolioHistory.filter(point => point.timestamp >= cutoff);
+            } else if (chartTimeframe === '1h') {
+                const cutoff = now - 60 * 60 * 1000;
+                filteredData = portfolioHistory.filter(point => point.timestamp >= cutoff);
+            }
+
+            // Additional sampling if still too many points
+            const maxDisplayPoints = 200;
+            if (filteredData.length > maxDisplayPoints) {
+                filteredData = samplePortfolioData(filteredData, maxDisplayPoints);
+            }
+
+            // Update chart data efficiently
+            chart.data.labels = filteredData.map(point => 
+                new Date(point.timestamp).toLocaleTimeString()
+            );
+            chart.data.datasets[0].data = filteredData.map(point => point.value);
+            
+            // Use 'none' mode to skip animations
+            chart.update('none');
+        } catch (error) {
+            console.error('Chart update error:', error);
+        }
+    }
+
+    // Set chart timeframe
+    function setChartTimeframe(timeframe, button) {
+        chartTimeframe = timeframe;
+        document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        updateChart();
+    }
+
+    // Cleanup function
+    function cleanupChart() {
+        if (chartUpdateTimeout) {
+            clearTimeout(chartUpdateTimeout);
+            chartUpdateTimeout = null;
+        }
+        
+        if (chart) {
+            chart.destroy();
+            chart = null;
+        }
+    }
+
+    // Initialize the app
+    function initializeApp() {
+        updateDisplay();
+        // initChart();
+    }
+
+    // Initialize after DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+        initializeApp();
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', cleanupChart);
+</script>
+</body>
+
+</html>
