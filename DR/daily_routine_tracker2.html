@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -121,18 +122,16 @@
         }
 
         .delete-btn {
-            padding: 8px 15px;
-            background: #dc3545;
-            color: white;
+            background: none;
             border: none;
-            border-radius: 5px;
+            color: #e74c3c;
             cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
+            font-size: 1.2rem;
+            margin-left: 10px;
         }
 
         .delete-btn:hover {
-            background: #c82333;
+            color: #1c0300;
         }
 
         .stats {
@@ -157,6 +156,12 @@
             color: #6c757d;
             margin-top: 5px;
         }
+
+        .stat-label-bar {
+            color: #6c757d;
+            margin-top: 8px;
+        }
+
 
         .progress-bar-container {
             width: 100%;
@@ -264,6 +269,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -289,10 +295,11 @@
                     <div class="stat-label">Completed</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Completion Rate</div>
+
                     <div class="progress-bar-container">
-                        <div class="progress-bar" id="progressBar">0%</div>
+                        <div class="progress-bar" id="progressBar">0</div>
                     </div>
+                    <div class="stat-label-bar">Completion Rate</div>
                 </div>
             </div>
         </div>
@@ -308,7 +315,7 @@
 
     <script>
         const DEFAULT_TASKS = ["UP", "T", "D", "N", "CR", "----", "T", "N", "L", "PT", "P", "D"];
-        
+
         const state = {
             tasks: [],
             history: [],
@@ -334,25 +341,25 @@
 
         function updateCurrentDate() {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('currentDate').textContent = 
+            document.getElementById('currentDate').textContent =
                 new Date().toLocaleDateString('en-US', options);
         }
 
         function checkDateChange() {
             const today = new Date().toDateString();
-            
+
             if (state.currentDate !== today) {
                 if (state.tasks.length > 0) {
                     state.history.unshift({
                         date: state.currentDate,
                         tasks: [...state.tasks]
                     });
-                    
+
                     if (state.history.length > 30) {
                         state.history = state.history.slice(0, 30);
                     }
                 }
-                
+
                 state.tasks = DEFAULT_TASKS.map((text, index) => ({
                     id: Date.now() + index,
                     text: text,
@@ -366,15 +373,15 @@
         function addTask() {
             const input = document.getElementById('taskInput');
             const text = input.value.trim();
-            
+
             if (text === '') return;
-            
+
             state.tasks.push({
                 id: Date.now(),
                 text: text,
                 completed: false
             });
-            
+
             input.value = '';
             saveData();
             renderTasks();
@@ -397,7 +404,7 @@
 
         function renderTasks() {
             const list = document.getElementById('tasksList');
-            
+
             if (state.tasks.length === 0) {
                 list.innerHTML = '<div class="empty-state">No tasks for today. Add one above!</div>';
             } else {
@@ -410,11 +417,11 @@
                             onchange="toggleTask(${task.id})"
                         />
                         <span class="task-text">${task.text}</span>
-                        <button class="delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+                        <button class="delete-btn" onclick="deleteTask(${task.id})">×</button>
                     </li>
                 `).join('');
             }
-            
+
             updateStats();
         }
 
@@ -422,14 +429,14 @@
             const total = state.tasks.length;
             const completed = state.tasks.filter(t => t.completed).length;
             const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-            
+
             document.getElementById('totalTasks').textContent = total;
             document.getElementById('completedTasks').textContent = completed;
-            
+
             const progressBar = document.getElementById('progressBar');
             progressBar.style.width = rate + '%';
-            progressBar.textContent = rate + '%';
-            
+            progressBar.textContent = rate;
+
             progressBar.className = 'progress-bar';
             if (rate < 40) {
                 progressBar.classList.add('low');
@@ -443,14 +450,14 @@
         function toggleHistory() {
             const historyList = document.getElementById('historyList');
             const btn = document.getElementById('toggleHistory');
-            
+
             historyList.classList.toggle('show');
             btn.textContent = historyList.classList.contains('show') ? 'Hide History' : 'Show History';
         }
 
         function renderHistory() {
             const historyList = document.getElementById('historyList');
-            
+
             if (state.history.length === 0) {
                 historyList.innerHTML = '<div class="empty-state">No history yet. Complete today\'s tasks!</div>';
             } else {
@@ -458,7 +465,7 @@
                     const completed = day.tasks.filter(t => t.completed).length;
                     const total = day.tasks.length;
                     const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-                    
+
                     return `
                         <div class="history-day">
                             <div class="history-day-header">
@@ -493,7 +500,7 @@
                 state.history = window.dailyRoutineData.history || [];
                 state.currentDate = window.dailyRoutineData.currentDate || new Date().toDateString();
             }
-            
+
             if (state.tasks.length === 0) {
                 state.tasks = DEFAULT_TASKS.map((text, index) => ({
                     id: Date.now() + index,
@@ -506,4 +513,5 @@
         init();
     </script>
 </body>
+
 </html>
