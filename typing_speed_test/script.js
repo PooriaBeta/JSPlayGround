@@ -263,7 +263,7 @@ const texts = [
 },
 {
     title: "Japanese Automotive Precision",
-    content: "Japan's automotive industry rose to global dominance after World War II through an obsession with quality and innovation. Toyota introduced the concept of 'Kaizen'—continuous improvement—while Honda, Nissan, and Mazda became known for engineering reliability and efficiency. The 1980s and 1990s saw Japanese performance icons like the Nissan Skyline GT-R, Mazda RX-7, and Toyota Supra achieve cult status worldwide. Today, Japan continues to lead in hybrid and hydrogen technologies, emphasizing sustainability without sacrificing performance."
+    content: "Japan's automotive industry rose to global dominance after World War II through an obsession with quality and innovation. Toyota introduced the concept of 'Kaizen'continuous improvement while Honda, Nissan, and Mazda became known for engineering reliability and efficiency. The 1980s and 1990s saw Japanese performance icons like the Nissan Skyline GT-R, Mazda RX-7, and Toyota Supra achieve cult status worldwide. Today, Japan continues to lead in hybrid and hydrogen technologies, emphasizing sustainability without sacrificing performance."
 },
 {
     title: "German Engineering Excellence",
@@ -355,7 +355,28 @@ const texts = [
 {
     title: "The Future of Artificial Intelligence",
     content: "AI's trajectory points toward increasingly general and adaptive systems capable of performing a wide range of cognitive tasks. Research in artificial general intelligence (AGI) aims to create machines that can reason and learn like humans, raising profound philosophical and ethical questions. Thought leaders like Stuart Russell, Yoshua Bengio, and Demis Hassabis emphasize responsible development and global cooperation. Whether AI becomes humanity's greatest tool or its greatest risk will depend on how we guide its evolution."
+},
+{
+    title: "The Birth of Computer Science",
+    content: "Computer science as a formal discipline emerged in the mid-20th century, combining mathematics, logic, and engineering. Alan Turing's 1936 paper on computable numbers introduced the concept of the Turing Machine, a theoretical model that defines the limits of computation. Later, figures like John von Neumann developed architectures still used in modern computers. The field has since expanded to include algorithms, software engineering, artificial intelligence, and human-computer interaction, shaping nearly every aspect of modern life."
+},
+{
+    title: "The Evolution of Programming Languages",
+    content: "Programming languages evolved from low-level assembly code to high-level languages that prioritize readability and abstraction. Early languages like FORTRAN and COBOL paved the way for structured programming with C, while Java and Python emphasized portability and simplicity. Functional programming paradigms, exemplified by Lisp and Haskell, introduced new ways of reasoning about computation. Today, languages such as Rust and Go focus on safety and concurrency, reflecting how software development continually adapts to technological change."
+},
+{
+    title: "Algorithms and Computational Complexity",
+    content: "At the heart of computer science lies the study of algorithms step-by-step procedures for solving problems efficiently. Computational complexity theory, introduced by researchers like Stephen Cook and Richard Karp, classifies problems based on the resources required to solve them. The distinction between P and NP problems remains one of the most profound unsolved questions in mathematics and computer science. Understanding algorithmic efficiency is vital for optimizing everything from web search engines to quantum computing."
+},
+{
+    title: "The Internet and Network Architecture",
+    content: "The Internet began as ARPANET in the late 1960s, a U.S. research project aimed at enabling resilient communication between computers. The development of TCP/IP protocols by Vint Cerf and Bob Kahn standardized how data moves across networks, laying the foundation for the global Internet. Subsequent innovations like the World Wide Web, cloud computing, and distributed systems have transformed how information is shared and stored, making the Internet the backbone of the digital age(pooria was here)."
+},
+{
+    title: "The Rise of Quantum Computing",
+    content: "Quantum computing harnesses principles of quantum mechanics such as superposition and entanglement to perform computations beyond the reach of classical computers. Companies like IBM, Google, and D-Wave are developing quantum processors capable of solving optimization and cryptography problems exponentially faster than traditional systems. Although still in early stages, quantum algorithms such as Shor's and Grover's demonstrate the transformative potential of this technology, which could redefine fields from materials science to artificial intelligence."
 }
+
 
 
 
